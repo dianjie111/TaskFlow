@@ -6,7 +6,7 @@ from flask import Flask,request
 app=Flask(__name__)
 CORS(app)
 
-@app.route('/api/login',methods=['GET'])            #获取用户数据
+@app.route('/api/user',methods=['GET'])            #获取用户数据
 def select_login():
     conn=pymysql.connect(host='localhost',
                          port=3306,
@@ -27,7 +27,7 @@ def select_login():
 
     return data
 
-@app.route('/api/user',methods=['POST'])
+@app.route('/api/login',methods=['POST'])
 def create_login():
     conn = pymysql.connect(host='localhost',
                            port=3306,
@@ -39,7 +39,7 @@ def create_login():
     try:
         user_data=request.get_json()
 
-        sql='insert info user(username,password,created_at,token) VALUES(%s,%s,%s,%S)'
+        sql='insert into user(username,password,created_at,token) VALUES (%s,%s,%s,%s)'
         cursor.execute(sql,(
             user_data['username'],
             user_data['password'],
@@ -47,10 +47,9 @@ def create_login():
             user_data['token']
         ))
         conn.commit()
-        return {'status':'success'}
+        return {'status':'用户注册成功'}
     except Exception as e:
-        conn.rollback()
-        return {'status':'error','message':str(e)},500
+        return {'status':'error','message':str(e)}
 
     finally:
         conn.close()

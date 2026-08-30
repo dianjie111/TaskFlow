@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { ref } from 'vue';
-    import Login from '../utils/index'
+    import {selectLogin,createLogin} from '../utils/request'
+import router from '@/router';
     const mode=ref<boolean>(true)
     const username=ref<string>('')
     const password=ref<string>('')
@@ -8,16 +9,54 @@
     const zcshow=ref<boolean>(false)
     // const index=
     const link = async()=>{
-        // if (zcshow){
-        //     if (new_password.value==''){
-        //         alert('请输入完整的账号密码')
-        //         return
-        //     }
-        //     else{
+        let data=await selectLogin()
+        console.log(data)
+        if (zcshow.value){
+            if (username.value !='' && password.value !='' && new_password.value !='' ){
+                if (password.value == new_password.value){
+                    if (!data['value'].find(item => item.username === username.value)){
+                        await createLogin(username.value,password.value)
+                    }
+                    else{
+                        alert('该用户已被注册')
+                        return
+                    }
+                }
+                else{
+                    alert('请确认两次密码是否相同')
+                    return
+                }
+            }
+            else{
+                alert('请输入完整的账号密码')
+                return
+            }
+        }
+        else{
+            if (username.value !='' && password.value !=''){
+                const target=data['value'].find(item => item.username === username.value)
+                if (target){
+                    if (target.password==password.value){
+                        console.log('ok')
+                    }
+                    else{
+                        alert('请检查账号密码正确')
+                        return
+                    }
+                }
+                else{
+                    alert('当前账号尚未注册')
+                    return
+                }
                 
-        //     }
-        // }
-        await Login()
+            }
+            else{
+                alert('请输入完整的账号密码')
+                return
+            }
+            
+        }
+        router.push({path:'/home'})
     }
     
 </script>
@@ -38,7 +77,7 @@
                     <p id="p"><span style="display: flex;align-items: center;"><input type="checkbox" name="" id="" ><label for="" style="font-size: 11px;">记住我</label></span>
                     <button style="border: none;background: white;color: #3B82F6;">忘记密码?</button></p>
                     <button @click="link" style="border-radius: 10px; width: 100%;height: 50px;background-color: #2563EB;color: white;">登录</button>
-                    <p style="text-align: center;font-size: 14px;">还没有账号？<buutton style="color: #3B82F6;text-decoration: underline;border: none;background: white;" @click="zcshow=!zcshow">立即注册</buutton> </p>
+                    <p style="text-align: center;font-size: 14px;">{{ zcshow?'已有账号？':'还没有账号？' }}<button style="color: #3B82F6;text-decoration: underline;border: none;background: white;" @click="zcshow=!zcshow">{{ zcshow?'返回登陆':'立即注册' }}</button> </p>
                 </div>
             </div>
         </div>
