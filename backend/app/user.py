@@ -1,12 +1,10 @@
 import json
 import pymysql
-from  flask_cors import CORS
-from flask import Flask,request
+from flask import Flask,request,Blueprint
 
-app=Flask(__name__)
-CORS(app)
+user_api=Blueprint('user',__name__,url_prefix='/api')
 
-@app.route('/api/user',methods=['GET'])            #获取用户数据
+@user_api.route('/user',methods=['GET'])            #获取用户数据
 def select_login():
     conn=pymysql.connect(host='localhost',
                          port=3306,
@@ -27,7 +25,7 @@ def select_login():
 
     return data
 
-@app.route('/api/login',methods=['POST'])
+@user_api.route('/login',methods=['POST'])
 def create_login():
     conn = pymysql.connect(host='localhost',
                            port=3306,
