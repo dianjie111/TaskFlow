@@ -1,21 +1,33 @@
 <script setup lang="ts">
-    import { ref } from 'vue';
+    import { ref,onMounted } from 'vue';
     import {selectLogin,createLogin} from '../utils/request'
-import router from '@/router';
+    import { useRouter } from 'vue-router';
+    import { useStorage } from '@vueuse/core';
+    const router=useRouter()
     const mode=ref<boolean>(true)
     const username=ref<string>('')
     const password=ref<string>('')
     const new_password=ref<string>('')
     const zcshow=ref<boolean>(false)
-    // const index=
+    const storage2=useStorage('token','default',sessionStorage)
+    let token:string
+
     const link = async()=>{
         let data=await selectLogin()
+        if (data=='失败'){
+            console.error('用户查询失败')
+            return 
+        }
         console.log(data)
         if (zcshow.value){
             if (username.value !='' && password.value !='' && new_password.value !='' ){
                 if (password.value == new_password.value){
                     if (!data['value'].find(item => item.username === username.value)){
-                        await createLogin(username.value,password.value)
+                        let token=await createLogin(username.value,password.value)
+                        if (token=='失败'){
+                            console.log('注册用户失败')
+                            return
+                        }
                     }
                     else{
                         alert('该用户已被注册')
@@ -35,6 +47,7 @@ import router from '@/router';
         else{
             if (username.value !='' && password.value !=''){
                 const target=data['value'].find(item => item.username === username.value)
+                token=target.token
                 if (target){
                     if (target.password==password.value){
                         console.log('ok')
@@ -56,9 +69,10 @@ import router from '@/router';
             }
             
         }
+        
+        storage2.value=token
         router.push({path:'/home'})
     }
-    
 </script>
 <template>
     <div class="box">
@@ -131,6 +145,9 @@ import router from '@/router';
             background: white;
             font-weight: 600;
         }
+    }
+    #p{
+        margin-top: 10px;
     }
     .hr{
         display: flex;
