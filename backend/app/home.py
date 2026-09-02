@@ -17,8 +17,21 @@ def home():
 
     sql='select * from user where token= %s'
     cursor.execute(sql,(token,))
-    username=cursor.fetchall()
+    username=cursor.fetchall()[0]['username']
 
-    print(username)
+    sql='select * from project where owner=%s'
+    cursor.execute(sql,(username,))
+    project=cursor.fetchall()
+    task_list=[]
+    for i in project:
+        project_name=i['name']
+        sql ='select * from task where project_name=%s'
+        cursor.execute(sql,(project_name,))
+        task=cursor.fetchall()
+        task_list.append({project_name:task})
 
-    return {'message':'成功','token':token},200
+    return {'message':{
+        'username':username,
+        'project':project,
+        'task':task_list
+    }},200
