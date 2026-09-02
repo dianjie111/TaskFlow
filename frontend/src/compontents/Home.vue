@@ -3,7 +3,8 @@
     import { onMounted } from 'vue';
     onMounted(async()=>{
         let token:string=sessionStorage.getItem('token')
-        await selectHome(token)
+        let data=await selectHome(token)
+        console.log(data)
     })
 </script>
 <template>

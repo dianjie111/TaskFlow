@@ -1,4 +1,6 @@
 import { createRouter,createWebHistory } from "vue-router";
+import { selectHome } from "@/utils/request.ts";
+let token=sessionStorage.getItem('token')
 
 const router=createRouter({
     history:createWebHistory(),

@@ -34,11 +34,13 @@ export async function createLogin(username:string,password:string):Promise<strin
     
 }
 
+//主页数据
 export async function selectHome(token:string){
     let res=await fetch('http://127.0.0.1:5143/api/home',{
         headers:{token:token,'content-type':'applicaiton/json'}
     })
-    console.log(await res.json())
+    let data=await res.json()
+    return data
 }
 
 //当前时间函数
