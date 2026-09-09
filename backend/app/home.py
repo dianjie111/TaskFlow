@@ -16,22 +16,29 @@ def home():
     cursor = conn.cursor(pymysql.cursors.DictCursor)
 
     sql='select * from user where token= %s'
+    print(token)
     cursor.execute(sql,(token,))
     username=cursor.fetchall()[0]['username']
 
-    sql='select * from project where owner=%s'
-    cursor.execute(sql,(username,))
+    sql='select * from project '
+    cursor.execute(sql,)
     project=cursor.fetchall()
     task_list=[]
+    all_task_list=[]
     for i in project:
         project_name=i['name']
-        sql ='select * from task where project_name=%s'
-        cursor.execute(sql,(project_name,))
+        sql ='select * from task where project_name=%s and assignee=%s'
+        cursor.execute(sql,(project_name,username,))
         task=cursor.fetchall()
+        sql='select * from task where project_name=%s'
+        cursor.execute(sql, (project_name,))
+        all_task=cursor.fetchall()
+        all_task_list.append({project_name:all_task})
         task_list.append({project_name:task})
 
     return {'message':{
-        'username':username,
-        'project':project,
-        'task':task_list
+        'username':username,        #str
+        'project':project,          #arr
+        'task':task_list,           #obj
+        'all_task':all_task_list    #obj
     }},200

@@ -6,6 +6,7 @@
     const route=useRoute()
     const router=useRouter()
     const data=ref({})
+    const username=ref('')
 
     const list=ref([
         {text:'首页',mode:true},
@@ -58,8 +59,14 @@
     }
 
     onBeforeMount(async()=>{
-        let token=sessionStorage.getItem('token')
-        data.value=await selectHome(token)
+        let token:string=sessionStorage.getItem('token')
+        if (token!='default'){
+            data.value=await selectHome(token)
+            if (data.value){
+                username.value=data.value.message['username']
+            }
+        }
+        
     })
 
 </script>
@@ -74,7 +81,7 @@
                 <button v-for="item in list" :key="item.text" @click="click(item.text)" class="click" :style="{background:item.mode?'#2563EB':'white',color:item.mode?'#EFF6FF':'black'}">{{ item.text }}</button>
             </div>
             <div class="under">
-                <p >用户名：<span v-if="data">{{ data.message.username }}</span></p>
+                <p >用户名：<span v-if="data">{{ username }}</span></p>
             </div>
         </div>
         <div class="right">
@@ -107,8 +114,11 @@
     }
     .header{
         width: 100%;
-        margin: 30px;
-        margin-left: 60px;
+        margin-top: 30px;
+        h3{
+            margin-left: 60px;
+        }
+        
     } 
     .body{
         width: 90%;

@@ -28,6 +28,11 @@
                             console.log('注册用户失败')
                             return
                         }
+                        else{
+                            storage2.value=token
+                            router.push({path:'/home'})
+                            
+                        }
                     }
                     else{
                         alert('该用户已被注册')
@@ -51,6 +56,8 @@
                 if (target){
                     if (target.password==password.value){
                         console.log('ok')
+                        storage2.value=token
+                        router.push({path:'/home'})
                     }
                     else{
                         alert('请检查账号密码正确')
@@ -70,8 +77,6 @@
             
         }
         
-        storage2.value=token
-        router.push({path:'/home'})
     }
 </script>
 <template>
