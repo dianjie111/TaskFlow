@@ -38,3 +38,28 @@ export function homeDate(data:object){
         return [project_count,all_task_count,task_doing,task_done,task_list,all_task_doing,all_task_done]
     }
 
+export function projectData(data:object){
+    let list=[]
+    let project_task_count=0
+    let project_member_count=0
+    let time=''
+
+    for (let i=0;i<data.project.length;i++){
+        const seen=new Set()
+        let project_name=data.project[i].name
+        let description=data.project[i].description
+        time=data.project[i].created_at
+        project_task_count=data.task.filter(item => item.project_name === project_name).length
+        project_member_count=data.member.filter(item =>item.project_name === project_name).filter(items =>{
+            if (seen.has(items.username)) return false
+            seen.add(items.username)
+            return true
+        }).length   
+        let task_doing_count=(data.task.filter(item =>item.project_name === project_name).filter(item => item.status === 'doing')).length
+
+        list.push(
+            {name:project_name,description:description,progress:Math.floor(task_doing_count / project_task_count *100),task_count:project_task_count,member:project_member_count,time:time}
+        )
+    }
+    return list
+}

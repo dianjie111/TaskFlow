@@ -27,7 +27,11 @@ def select_project():
         cursor.execute(sql)
         member=cursor.fetchall()
 
-        return {'message':'success','project':project,'member':member,'username':user[0]['username']},200
+        sql='select * from task'
+        cursor.execute(sql)
+        task=cursor.fetchall()
+
+        return {'message':'success','project':project,'member':member,'task':task,'username':user[0]['username']},200
     else:
         return {'message':'error','data':'密钥错误'},500
 

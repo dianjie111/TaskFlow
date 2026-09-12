@@ -1,21 +1,32 @@
 <script setup lang="ts">
     import { selectProject,createProject } from '../utils/request';
-    import { ref,onBeforeMount,provide } from 'vue';
+    import { ref,onBeforeMount,computed } from 'vue';
     import { useShow } from '../utils/show';
+    import { projectData } from '../utils/dataChuli';
 
     const token=ref<string>('')
     const name=ref<string>('')
     const description=ref<string>('')
     const owner=ref<string>('')
     const {show,open,stop}=useShow()
-
+    const data=ref()
+    const currentPage=ref(1)
+    const pageSize=4
+    const totalPages=computed(()=>Math.max(1,Math.ceil((data.value?.length||0)/pageSize)))
+    const pageData=computed(()=>{
+        const arr=data.value||[]
+        const start=(currentPage.value-1)*pageSize
+        return arr.slice(start,start+pageSize)
+    })
+    
     
 
     onBeforeMount(async()=>{
         token.value=sessionStorage.getItem('token')
         let res=await selectProject(token.value)
         owner.value=res.username
-
+        data.value=projectData(res)
+        
     })
 
     const showClick_yes=()=>{
@@ -44,6 +55,13 @@
         }
         
     }
+
+    const prevPage=()=>{
+        if(currentPage.value>1) currentPage.value--
+    }
+    const nextPage=()=>{
+        if(currentPage.value<totalPages.value) currentPage.value++
+    }
 </script>
 <template>
     <div class="box">
@@ -63,6 +81,28 @@
                 <p style="margin-top: 15px;text-align: center;"><button class="no" @click="showClick_no">取消</button><button class="yes" @click="createClick">创建项目</button></p>
             </div>
             </Transition>
+            <div class="contents" v-for="(item,index) in pageData" :key="index">
+                <h3>{{ item.name }}</h3>
+                <p>{{ item.description }}</p>
+                <table>
+                    <tr>
+                        <td style="width: 40%;">进度</td>
+                        <td style="width: 20%;">任务</td>
+                        <td style="width: 20%;">成员</td>
+                        <td style="width: 20%;">更新时间</td>
+                    </tr>
+                    <tr>
+                        <td><div class="tianchong"><div class="nei" :style="{width:item.progress+'%'}"></div></div></td>
+                        <td>{{ item.task_count }}</td>
+                        <td>{{ item.member }}</td>
+                        <td>{{ item.time }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="pagination" v-if="data && data.length > 4">
+                <button @click="prevPage" :disabled="currentPage<=1">上一页</button>
+                <button @click="nextPage" :disabled="currentPage>=totalPages">下一页</button>
+            </div>
         </div>
     </div>
 </template>
@@ -142,5 +182,50 @@
         width: 100px;
         height: 30px;
         border-radius: 5px;
+    }
+    .contents{
+        background: white;
+        margin: 10px;
+        margin-top: 0px;
+        padding: 10px;
+        p{
+            color: #9CA3AF;
+            font-size: 12px;
+        }
+        table{
+            text-align: center;
+        }
+    }
+    .pagination{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin: 20px 0;
+    }
+    .pagination button{
+        padding: 6px 22px;
+        background: #fff;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        color: #374151;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .pagination button:disabled{
+        color: #9ca3af;
+        border-color: #e5e7eb;
+        cursor: not-allowed;
+        background: #f9fafb;
+    }
+    .tianchong{
+        background: #9CA3AF;
+        height: 3px;
+        width: 100%;
+    }
+    .nei{
+        background: #2563EB;
+        border-radius: 5px;
+        height: 3px;
     }
 </style>
