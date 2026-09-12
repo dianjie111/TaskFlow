@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router/index.ts'
 import '../public/style.css'
+import Header from './view/header.vue'
 
 //vue引入echarts
 import {
@@ -45,4 +46,5 @@ use([
 let app=createApp(App)
 app.use(router)
 app.component('v-chart', ECharts)
+app.component('headers',Header)
 app.mount('#app')

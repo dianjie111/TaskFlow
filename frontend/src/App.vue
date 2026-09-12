@@ -1,61 +1,35 @@
 <script setup lang="ts">
-    import { onBeforeMount, ref} from 'vue';
+    import { onBeforeMount, ref, computed,inject} from 'vue';
     import {useRoute,useRouter} from "vue-router"
     import { selectHome } from './utils/request';
+    import { useShow } from './utils/show';
     const mode=ref(false)
     const route=useRoute()
     const router=useRouter()
     const data=ref({})
     const username=ref('')
+    const {show}=useShow()
 
     const list=ref([
-        {text:'首页',mode:true},
-        {text:'项目',mode:false},
-        {text:'任务',mode:false},
-        {text:'日历',mode:false},
-        {text:'成员',mode:false},
-        {text:'报表',mode:false},
-        {text:'设置',mode:false},
+        {text:'首页',path:'/home'},
+        {text:'项目',path:'/projectList'},
+        {text:'任务',path:'/rwView'},
+        {text:'日历',path:'/rlView'},
+        {text:'成员',path:'/People'},
+        {text:'报表',path:'/tzView'},
+        {text:'设置',path:'/Setting'},
     ])
+
+    // 当前页面对应的侧边栏项，直接由路由推导，刷新后也能保持正确高亮
+    const currentText=computed(()=>{
+        const item=list.value.find(i=>i.path===route.path)
+        return item?item.text:''
+    })
 
 
     const click=(text:string)=>{
-        if (text=='首页'){
-            router.push({path:'/home'})
-            
-        }
-        else if (text=='项目'){
-            router.push({path:'/projectList'})
-        }
-        else if (text=='任务'){
-            router.push({path:'/rwView'})
-        }
-        else if (text=='日历'){
-            router.push({path:'/rlView'})
-        }
-        else if (text=='成员'){
-            router.push({path:'/People'})
-        }
-        else if (text=='报表'){
-            router.push({path:'/tzView'})
-        }
-        else if (text=='设置'){
-            router.push({path:'/Setting'})
-        }
-        const index = list.value.findIndex(item => item.text === text)
-        for (let i=0;i<list.value.length;i++){
-            if (i==index){
-                if (list.value[index]){
-                    list.value[index].mode=true
-                } 
-            }
-            else{
-                if (list.value[i]){
-                    list.value[i].mode=false
-                }
-                
-            }
-        }
+        const item=list.value.find(i=>i.text===text)
+        if (item){ router.push({path:item.path}) }
     }
 
     onBeforeMount(async()=>{
@@ -71,23 +45,25 @@
 
 </script>
 <template>
-    <div class="box" :style="{display:!route.meta.hide?'flex':'block',background:!route.meta.hide?'#F3F4F6':'white'}">
-        <div class="left" v-if="!route.meta.hide">
-            <div class="header">
-                <h3>TaskFlow</h3>
-                <div style="background: whitesmoke;height: 1px;width: 100%;"></div>
+        <div class="box"  :style="{display:!route.meta.hide?'flex':'block',background:!route.meta.hide?'#F3F4F6':'white'}">
+            <div class="left" v-if="!route.meta.hide">
+                <div class="header">
+                    <h3>TaskFlow</h3>
+                    <div style="background: whitesmoke;height: 1px;width: 100%;"></div>
+                </div>
+                <div class="body">
+                    <button v-for="item in list" :key="item.text" @click="click(item.text)" class="click" :style="{background:item.text===currentText?'#2563EB':'white',color:item.text===currentText?'#EFF6FF':'black'}">{{ item.text }}</button>
+                </div>
+                <div class="under">
+                    <p >用户名：<span v-if="data">{{ username }}</span></p>
+                </div>
             </div>
-            <div class="body">
-                <button v-for="item in list" :key="item.text" @click="click(item.text)" class="click" :style="{background:item.mode?'#2563EB':'white',color:item.mode?'#EFF6FF':'black'}">{{ item.text }}</button>
-            </div>
-            <div class="under">
-                <p >用户名：<span v-if="data">{{ username }}</span></p>
+            <div class="right">
+                <router-view></router-view>
             </div>
         </div>
-        <div class="right">
-            <router-view></router-view>
-        </div>
-    </div>
+    
+    
     
 </template>
 <style scoped >
@@ -96,8 +72,9 @@
         height: 822px;
         margin: 0;
         padding: 0;
+        z-index: 99;
     }
-
+    
     .left{
         height: 100%;
         width: 15%;

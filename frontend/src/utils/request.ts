@@ -43,6 +43,39 @@ export async function selectHome(token:string){
     return data
 }
 
+//项目数据获取
+export async function selectProject(token:string){
+    let res=await fetch('http://127.0.0.1:5143/api/project',{
+        method:'GET',
+        headers:{token:token,'coutent-type':'application/json'}
+    })
+    let data=await res.json()
+    console.log(data)
+    return data
+}
+
+export async function createProject(token:string,name:string,description:string,owner:string){
+    let nowTime=time()
+    let res=await fetch('http://127.0.0.1:5143/api/project',{
+        headers:{'content-type':'application/json'},
+        method:'POST',
+        body:JSON.stringify({
+            token:token,
+            name:name,
+            description:description,
+            owner:owner,
+            created_at:nowTime
+        })
+    })
+    if (res.ok){
+        console.log('新增项目成功')
+        return 'ok'
+    }
+    else{
+        console.log('新增项目失败')
+    }
+}
+
 //当前时间函数
 function time(){
     const now = new Date();
